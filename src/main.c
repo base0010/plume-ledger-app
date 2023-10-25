@@ -541,6 +541,8 @@ const uint8_t *parseBip32(const uint8_t *dataBuffer, uint8_t *dataLength, bip32_
 }
 
 void handleApdu(unsigned int *flags, unsigned int *tx) {
+    PRINTF("INCOMING APDU WTF:");
+
     unsigned short sw = 0;
 
     BEGIN_TRY {

@@ -5,6 +5,7 @@
 #include "ethUtils.h"
 #include "common_ui.h"
 #include "os_io_seproxyhal.h"
+#include "ox_bn.h"
 
 void handleGetPublicKey(uint8_t p1,
                         uint8_t p2,
@@ -12,6 +13,9 @@ void handleGetPublicKey(uint8_t p1,
                         uint8_t dataLength,
                         unsigned int *flags,
                         unsigned int *tx) {
+
+    PRINTF("\n In handler");
+
     uint8_t privateKeyData[INT256_LENGTH];
     bip32_path_t bip32;
     cx_ecfp_private_key_t privateKey;
@@ -46,38 +50,115 @@ void handleGetPublicKey(uint8_t p1,
     cx_ecfp_init_private_key(CX_CURVE_256K1, privateKeyData, 32, &privateKey);
     io_seproxyhal_io_heartbeat();
     cx_ecfp_generate_pair(CX_CURVE_256K1, &tmpCtx.publicKeyContext.publicKey, &privateKey, 1);
+    io_seproxyhal_io_heartbeat();
+
+    PRINTF("\nInternal Private Key %.*H\n", 32, privateKeyData);
+
+
+    uint8_t testPrivateKey[INT256_LENGTH] = {
+        0x51, 0x9b, 0x42, 0x3d, 0x71, 0x5f, 0x8b, 0x58,
+        0x1f, 0x4f, 0xa8, 0xee, 0x59, 0xf4, 0x77, 0x1a,
+        0x5b, 0x44, 0xc8, 0x13, 0x0b, 0x4e, 0x3e, 0xac,
+        0xca, 0x54, 0xa5, 0x6d, 0xda, 0x72, 0xb4, 0x64
+    };
+
+    PRINTF("\n Test Private Key %.*H\n", 32, testPrivateKey);
+
 
     //Begin Hash to Curve stuffs
+    //Point on curve should be 64b (x,y) + format byte
+    uint8_t HTPInput[65]= {
+        0x04, //format byte
 
-    //todo: replace with actual test values
-    uint8_t HTCx[32] = {0x01, 0x02};
-    uint8_t HTCy[32] = {0x01, 0x02};
+        //Px
+        0xc1, 0xca, 0xe2, 0x90, 0xe2, 0x91, 0xae, 0xe6,
+        0x17, 0xeb, 0xae, 0xf1, 0xbe, 0x6d, 0x73, 0x86,
+        0x14, 0x79, 0xc4, 0x8b, 0x84, 0x1e, 0xab, 0xa9,
+        0xb7, 0xb5, 0x85, 0x2d, 0xdf, 0xeb, 0x13, 0x46,
+
+        //Py
+        0x64, 0xfa, 0x67, 0x8e, 0x07, 0xae, 0x11, 0x61,
+        0x26, 0xf0, 0x8b, 0x02, 0x2a, 0x94, 0xaf, 0x6d,
+        0xe1, 0x59, 0x85, 0xc9, 0x96, 0xc3, 0xa9, 0x1b,
+        0x64, 0xc4, 0x06, 0xa9, 0x60, 0xe5, 0x10, 0x67
+
+    };
+
+    uint8_t TestHTPInput[65]= {
+        0x04, //format byte
+
+        //Px
+        0xbc, 0xac, 0x2d, 0x0e, 0x12, 0x67, 0x9f, 0x23,
+        0xc2, 0x18, 0x88, 0x93, 0x95, 0xab, 0xcd, 0xc0,
+        0x1f, 0x2a, 0xff, 0xbc, 0x49, 0xc5, 0x4d, 0x11,
+        0x36, 0xa2, 0x19, 0x0d, 0xb0, 0x80, 0x0b, 0x65,
+
+        //Py
+        0x3b, 0xcf, 0xb3, 0x39, 0xc9, 0x74, 0xc0, 0xe7,
+        0x57, 0xd3, 0x48, 0x08, 0x1f, 0x90, 0xa1, 0x23,
+        0xb0, 0xa9, 0x1a, 0x53, 0xe3, 0x2b, 0x37, 0x52,
+        0x14, 0x5d, 0x87, 0xf0, 0xcd, 0x70, 0x96, 0x6e
+    };
+
+    PRINTF("\nHTP Test%.*H\n", 65, TestHTPInput);
+
+    cx_curve_t curve256k1  = CX_CURVE_256K1;
+
+    io_seproxyhal_io_heartbeat();
+    // cx_ecfp_scalar_mult_no_throw(curve256k1, HTPInput, privateKeyData, 32);
+    cx_err_t err = cx_ecfp_scalar_mult_no_throw(curve256k1, TestHTPInput, testPrivateKey, 32);
+    if(err != CX_OK){
+        PRINTF("ERROR");
+    }
+
     //HTC Point coords
     cx_bn_t Px, Py;
+
+    io_seproxyhal_io_heartbeat();
+    PRINTF("\nNuliffier (HTP salrmul with PrivateKey) %.*H\n", 65, TestHTPInput);
+
     //z (should always be 1?)
     // cx_bn_t z; 
 
     //init bn z
     // cx_bn_alloc_init(&z, 32, (uint8_t*){1}, 1);
     //
-    cx_bn_alloc_init(&Px, 32, HTCx, 32);
-    cx_bn_alloc_init(&Py, 32, HTCy, 32);
+    // cx_err_t xErr = cx_bn_alloc_init(&Px, 32, HTCx, 2);
 
-    cx_curve_t curve256k1  = CX_CURVE_256K1;
+    // if(xErr != CX_OK){
+    //     PRINTF("\n Error in x BN allocation");
+    // }
 
-    cx_ecpoint_t P; 
-    cx_ecpoint_alloc(&P, curve256k1);
-    cx_ecpoint_init(&P, &Px, sizeof(Px), &Py, sizeof(Py));
+
+    // cx_err_t yErr = cx_bn_alloc_init(&Py, 32, HTCy, 32);
+
+    // if(yErr != CX_OK){
+    //     PRINTF("\n ERROR in y BN allocation");
+    // }
+
+    // PRINTF("ALLOCATED BN");
+
+ 
+
+
+
+    // cx_ecpoint_t P; 
+    // cx_ecpoint_alloc(&P, curve256k1);
+    // cx_ecpoint_init(&P, &Px, sizeof(Px), &Py, sizeof(Py));
 
     //create the nullifier
-    cx_ecpoint_rnd_scalarmul_bn(&P, privateKeyData);
-
+    // cx_ecpoint_rnd_scalarmult(&P, privateKeyData);
+ 
+    
     //printf P which should have a nullifier now
-    uint8_t PxExport[sizeof(P)];
+    // uint8_t PxExport[sizeof(P)];
 
-    cx_bn_export(&P, &PxExport, sizeof(P));
+    // cx_bn_export(&P, &PxExport, sizeof(P));
 
-    PRINTF("Error: Leftover unwanted data (%u bytes long)!\n", &P);
+    // for(int i = 0; i < (sizeof(PxExport)/sizeof(uint8_t)); i++){
+    //     PRINTF("%lu\n", Px);
+    // }
+    
 
 
 
@@ -88,7 +169,7 @@ void handleGetPublicKey(uint8_t p1,
     
     // explicit_bzero(&privateKey, sizeof(privateKey));
     // explicit_bzero(privateKeyData, sizeof(privateKeyData));
-    io_seproxyhal_io_heartbeat();
+    
     getEthAddressStringFromKey(&tmpCtx.publicKeyContext.publicKey,
                                tmpCtx.publicKeyContext.address,
                                &global_sha3,
@@ -132,10 +213,10 @@ void handleGetPublicKey(uint8_t p1,
                  "0x%.*s",
                  40,
                  tmpCtx.publicKeyContext.address);
-        G_io_apdu_buffer[0] = PxExport[0];
-        G_io_apdu_buffer[1] = PxExport[1];
-        G_io_apdu_buffer[2] = PxExport[2];
-        G_io_apdu_buffer[3] = PxExport[3];
+        // G_io_apdu_buffer[0] = PxExport[0];
+        // G_io_apdu_buffer[1] = PxExport[1];
+        // G_io_apdu_buffer[2] = PxExport[2];
+        // G_io_apdu_buffer[3] = PxExport[3];
         // don't unnecessarily pass the current app's chain ID
         ui_display_public_key(chainConfig->chainId == chain_id ? NULL : &chain_id);
 
