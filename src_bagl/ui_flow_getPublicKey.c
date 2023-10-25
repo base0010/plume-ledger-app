@@ -14,7 +14,7 @@ UX_STEP_NOCB(
     ux_display_public_flow_2_step,
     bnnn_paging,
     {
-      .title = "Address",
+      .title = "Reeeeeeee:",
       .text = strings.common.fullAddress,
     });
 UX_STEP_CB(

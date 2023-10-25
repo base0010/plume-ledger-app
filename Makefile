@@ -28,6 +28,8 @@ APP_LOAD_PARAMS += --path "45'"
 # Samsung temporary implementation for wallet ID on 0xda7aba5e/0xc1a551c5
 APP_LOAD_PARAMS += --path "1517992542'/1101353413'"
 
+# SCP_PRIVKEY += 39c3c47fd086550f7b500cd9c540a2e2b63d30c385e7e391dd0ba3ca8bb046eb
+
 ##################
 # Define Version #
 ##################

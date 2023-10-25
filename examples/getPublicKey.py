@@ -50,6 +50,7 @@ if args.path == None:
 donglePath = parse_bip32_path(args.path)
 apdu = bytearray.fromhex("e0020100") + chr(len(donglePath) + 1).encode() + \
     chr(len(donglePath) // 4).encode() + donglePath
+print("outgoing apdu", apdu)
 
 dongle = getDongle(True)
 result = dongle.exchange(bytes(apdu))
