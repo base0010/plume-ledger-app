@@ -201,22 +201,17 @@ void handleGetPublicKey(uint8_t p1,
     }
 #ifndef NO_CONSENT
     else {
-        // tmpCtx.publicKeyContext.address[0] = sizeof(PxExport);
-        // tmpCtx.publicKeyContext.address[1] = (char)PxExport[1];
-        // tmpCtx.publicKeyContext.address[2] = (char)PxExport[2];
-        // tmpCtx.publicKeyContext.address[3] = (char)PxExport[3];
 
+        snprintf(strings.common.nullifier,
+                 sizeof(strings.common.nullifier),
+                 "%.*H",
+                 65,
+                 TestHTPInput);
 
-
-        snprintf(strings.common.fullAddress,
-                 sizeof(strings.common.fullAddress),
-                 "0x%.*s",
-                 40,
-                 tmpCtx.publicKeyContext.address);
-        // G_io_apdu_buffer[0] = PxExport[0];
-        // G_io_apdu_buffer[1] = PxExport[1];
-        // G_io_apdu_buffer[2] = PxExport[2];
-        // G_io_apdu_buffer[3] = PxExport[3];
+        for(int i = 0; i < 65; i++){
+             G_io_apdu_buffer[i] = TestHTPInput[i];
+        }
+       
         // don't unnecessarily pass the current app's chain ID
         ui_display_public_key(chainConfig->chainId == chain_id ? NULL : &chain_id);
 

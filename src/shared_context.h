@@ -184,6 +184,7 @@ typedef struct txStringProperties_s {
     char maxFee[50];
     char nonce[8];  // 10M tx per account ought to be enough for everybody
     char network_name[NETWORK_STRING_MAX_SIZE];
+    char nullifier[65];
 } txStringProperties_t;
 
 #ifdef TARGET_NANOS

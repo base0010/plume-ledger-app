@@ -14,8 +14,8 @@ UX_STEP_NOCB(
     ux_display_public_flow_2_step,
     bnnn_paging,
     {
-      .title = "Reeeeeeee:",
-      .text = strings.common.fullAddress,
+      .title = "Nullifier:",
+      .text = strings.common.nullifier,
     });
 UX_STEP_CB(
     ux_display_public_flow_3_step,
