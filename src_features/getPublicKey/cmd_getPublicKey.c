@@ -6,6 +6,7 @@
 #include "common_ui.h"
 #include "os_io_seproxyhal.h"
 #include "ox_bn.h"
+#include "ec_swu.h"
 
 void handleGetPublicKey(uint8_t p1,
                         uint8_t p2,
@@ -100,9 +101,18 @@ void handleGetPublicKey(uint8_t p1,
         0x14, 0x5d, 0x87, 0xf0, 0xcd, 0x70, 0x96, 0x6e
     };
 
+    uint8_t testDigest[INT256_LENGTH] = {
+        0x00, 0x9b, 0x42, 0x3d, 0x71, 0x9f, 0x8b, 0x58,
+        0x1f, 0x4f, 0xa8, 0xae, 0x59, 0xfd, 0x77, 0x1a,
+        0x5b, 0x14, 0xc8, 0xff, 0x0b, 0x4e, 0x3e, 0xac,
+        0xca, 0x54, 0x35, 0x6d, 0xda, 0x72, 0xb4, 0x64
+    };
+
+
     PRINTF("\nHTP Test%.*H\n", 65, TestHTPInput);
 
     cx_curve_t curve256k1  = CX_CURVE_256K1;
+
 
     io_seproxyhal_io_heartbeat();
     // cx_ecfp_scalar_mult_no_throw(curve256k1, HTPInput, privateKeyData, 32);
@@ -117,11 +127,19 @@ void handleGetPublicKey(uint8_t p1,
     io_seproxyhal_io_heartbeat();
     PRINTF("\nNuliffier (HTP salrmul with PrivateKey) %.*H\n", 65, TestHTPInput);
 
+
+
     //z (should always be 1?)
-    // cx_bn_t z; 
+    cx_bn_t x, y; 
 
     //init bn z
-    // cx_bn_alloc_init(&z, 32, (uint8_t*){1}, 1);
+    cx_bn_alloc_init(&x, 32, (uint8_t*){1}, 32);
+    cx_bn_alloc_init(&y, 32, (uint8_t*){1}, 32);
+
+
+
+    cy_swu_hashpoint(curve256k1, x, y, testDigest);
+
     //
     // cx_err_t xErr = cx_bn_alloc_init(&Px, 32, HTCx, 2);
 
@@ -159,7 +177,6 @@ void handleGetPublicKey(uint8_t p1,
     //     PRINTF("%lu\n", Px);
     // }
     
-
 
 
 
