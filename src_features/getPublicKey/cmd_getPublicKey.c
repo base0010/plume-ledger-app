@@ -140,6 +140,9 @@ void handleGetPublicKey(uint8_t p1,
 
     cy_swu_hashpoint(curve256k1, x, y, testDigest);
 
+    PRINTF("\nAfter SSWU x %c %c %c\n", testDigest[0], testDigest[1], testDigest[2]);
+    // PRINTF("\nAfter SSWU y %.*H\n", 32, testDigest);
+
     //
     // cx_err_t xErr = cx_bn_alloc_init(&Px, 32, HTCx, 2);
 
