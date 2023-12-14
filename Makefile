@@ -21,6 +21,8 @@ endif
 
 include $(BOLOS_SDK)/Makefile.defines
 
+APPNAME = "PLUME"
+
 DEFINES_LIB = USE_LIB_ETHEREUM
 APP_LOAD_PARAMS= --curve secp256k1 $(COMMON_LOAD_PARAMS)
 # Allow the app to use path 45 for multi-sig (see BIP45).
