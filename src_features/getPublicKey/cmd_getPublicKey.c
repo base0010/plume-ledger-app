@@ -8,6 +8,8 @@
 #include "ox_bn.h"
 #include "ec_swu.h"
 
+
+
 void handleGetPublicKey(uint8_t p1,
                         uint8_t p2,
                         const uint8_t *dataBuffer,
@@ -125,23 +127,60 @@ void handleGetPublicKey(uint8_t p1,
     cx_bn_t Px, Py;
 
     io_seproxyhal_io_heartbeat();
-    PRINTF("\nNuliffier (HTP salrmul with PrivateKey) %.*H\n", 65, TestHTPInput);
+    PRINTF("\nNuliffier %.*H\n", 65, TestHTPInput);
 
 
 
     //z (should always be 1?)
-    cx_bn_t x, y; 
 
     //init bn z
-    cx_bn_alloc_init(&x, 32, (uint8_t*){1}, 32);
-    cx_bn_alloc_init(&y, 32, (uint8_t*){1}, 32);
+
+    //actually dont init these they should be inited by the sswu algo
+    // cx_bn_alloc_init(&x, 32, (uint8_t*){0x04}, 32);
+    // cx_bn_alloc_init(&y, 32, (uint8_t*){1}, 32);
 
 
+    for(int i = 0; i < 32; i++){
+        PRINTF("RES: %u", testDigest[i]);
+
+    }   
+
+
+    cx_bn_t x = 0;
+    cx_bn_t y = 0; 
 
     cy_swu_hashpoint(curve256k1, x, y, testDigest);
 
-    PRINTF("\nAfter SSWU x %c %c %c\n", testDigest[0], testDigest[1], testDigest[2]);
-    // PRINTF("\nAfter SSWU y %.*H\n", 32, testDigest);
+    //should be test digest len, not just hardcoded.
+    
+
+    PRINTF("\n x,y In  %02X\n",  x);
+
+    //index of x & y as bn
+  
+    
+    cx_ecpoint_t P;
+    // CX_CHECK(
+    cx_ecpoint_alloc(&P, curve256k1);
+
+    
+    cx_ecpoint_init_bn(&P, x, y); /* P=(x,y) */
+
+    uint8_t x_out[32];
+    uint8_t y_out[32];
+
+    //cx_check
+    cx_err_t error = CX_INTERNAL_ERROR;
+
+    cx_ecpoint_export(&P, &x_out, 32, &y_out, 32);
+
+
+    for(int i =0; i < 32; i++){
+            PRINTF("\n SSWU Output x: %02X\n y: %02X\n",  x_out[i], y_out[i]);
+    }
+
+
+
 
     //
     // cx_err_t xErr = cx_bn_alloc_init(&Px, 32, HTCx, 2);

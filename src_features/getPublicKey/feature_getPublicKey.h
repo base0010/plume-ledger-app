@@ -2,6 +2,9 @@
 #define _GET_PUB_KEY_H_
 
 #include "shared_context.h"
+#include "cx.h"
+#include "ox_bn.h"
+#include "ox_ec.h"
 
 uint32_t set_result_get_publicKey(void);
 
