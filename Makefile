@@ -21,7 +21,8 @@ endif
 
 include $(BOLOS_SDK)/Makefile.defines
 
-APPNAME = "PLUME"
+
+
 
 DEFINES_LIB = USE_LIB_ETHEREUM
 APP_LOAD_PARAMS= --curve secp256k1 $(COMMON_LOAD_PARAMS)
@@ -36,11 +37,11 @@ APP_LOAD_PARAMS += --path "1517992542'/1101353413'"
 # Define Version #
 ##################
 
-APPVERSION_M=1
-APPVERSION_N=10
-APPVERSION_P=4
-APPVERSION=$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)-dev
-APP_LOAD_FLAGS= --appFlags 0xa40 --dep Ethereum:$(APPVERSION)
+APPVERSION_M=0
+APPVERSION_N=00
+APPVERSION_P=1
+APPVERSION=$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)
+APP_LOAD_FLAGS= --appFlags 0xa40 --dep PLUME:$(APPVERSION)
 
 ###########################
 # Set Chain environnement #
